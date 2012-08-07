@@ -34,5 +34,7 @@ public abstract class MdBtPlugin {
 	}
 
 	public abstract String onMessage(String channel, String sender, String message);
+	
+	public abstract void cleanup();
 
 }

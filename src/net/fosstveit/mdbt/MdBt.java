@@ -16,6 +16,7 @@ import net.fosstveit.mdbt.utils.MdBtBrain;
 import net.fosstveit.mdbt.utils.MdBtConnector;
 import net.fosstveit.mdbt.utils.MdBtConstants;
 import net.fosstveit.mdbt.utils.MdBtPlugin;
+import net.fosstveit.mdbt.utils.OnlyJars;
 
 public class MdBt extends MdBtConnector {
 
@@ -56,49 +57,32 @@ public class MdBt extends MdBtConnector {
 			message = message.replaceFirst(filter, "");
 		}
 
-		if (message.equals("load plugins")) {
-			loadNewPlugins();
-
-			String ret = "";
-
-			for (Pattern s : plugins.keySet()) {
-				ret += s.pattern() + " ";
-			}
+		if (message.equals("reload plugins")) {
+			String ret = clearPlugins();
 
 			sendMessage(channel, "Plugins loaded: " + ret);
 			return;
 		}
-		
-		MdBtPlugin plug = null;
-		boolean hasPluginMatch = false;
-		
-		for (Pattern p : plugins.keySet()) {
-			if (p.matcher(message).matches()) {
-				plug = plugins.get(p);
-				hasPluginMatch = true;
-				break;
+
+		for (MdBtPlugin p : plugins.values()) {
+			if (p.getTriggerRegex().matcher(message).matches()) {
+				sendMessage(channel, p.onMessage(channel, sender, message));
+				return;
 			}
 		}
 
-		if (toMe && hasPluginMatch) {
-			sendMessage(
-					channel,
-					plug.onMessage(channel,
-							sender, message));
-		} else {
-			if (message.indexOf(MdBtConstants.BOTNAME) != -1) {
-				message = message.replaceAll(MdBtConstants.BOTNAME, "meg");
-				toMe = true;
-			}
+		if (message.indexOf(MdBtConstants.BOTNAME) != -1) {
+			message = message.replaceAll(MdBtConstants.BOTNAME, "meg");
+			toMe = true;
+		}
 
-			if (shouldLearn) {
-				brain.add(message);
-			}
+		if (shouldLearn) {
+			brain.add(message);
+		}
 
-			if (toMe) {
-				sendMessage(channel,
-						shouldITalkToYou(sender) + brain.getSentence(message));
-			}
+		if (toMe) {
+			sendMessage(channel,
+					shouldITalkToYou(sender) + brain.getSentence(message));
 		}
 	}
 
@@ -156,25 +140,29 @@ public class MdBt extends MdBtConnector {
 		}
 	}
 
-	// private void loadPlugins() {
-	// try {
-	//
-	// for (String plug : MdBtConstants.PLUGINS) {
-	// MdBtPlugin p = (MdBtPlugin) (Class.forName(plug).newInstance());
-	// p.setMdBT(this);
-	//
-	// plugins.put(p.getTriggerWord(), p);
-	// }
-	//
-	// } catch (Exception e) {
-	// e.printStackTrace();
-	// }
-	//
-	// }
+	private String clearPlugins() {
+		for (MdBtPlugin p : plugins.values()) {
+			p.cleanup();
+		}
+
+		plugins.clear();
+
+		pluginList.clear();
+
+		loadNewPlugins();
+
+		String ret = "";
+
+		for (Pattern s : plugins.keySet()) {
+			ret += s.pattern() + " ";
+		}
+
+		return ret;
+	}
 
 	private synchronized void loadNewPlugins() {
 		try {
-			for (String s : new File("plugins/").list()) {
+			for (String s : new File("plugins/").list(new OnlyJars("jar"))) {
 				File file = new File("plugins/" + s);
 				URL url;
 
@@ -187,12 +175,10 @@ public class MdBt extends MdBtConnector {
 						+ s.substring(0, s.length() - 4))) {
 
 					MdBtPlugin p = (MdBtPlugin) cl.loadClass(
-							"plugins."
-									+ s.substring(0, s.length() - 4))
+							"plugins." + s.substring(0, s.length() - 4))
 							.newInstance();
 					plugins.put(p.getTriggerRegex(), p);
-					pluginList.add("plugins."
-									+ s.substring(0, s.length() - 4));
+					pluginList.add("plugins." + s.substring(0, s.length() - 4));
 				}
 			}
 		} catch (Exception e) {
