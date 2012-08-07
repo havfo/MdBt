@@ -7,10 +7,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
-import java.util.regex.Pattern;
 
 import net.fosstveit.mdbt.utils.MdBtBrain;
 import net.fosstveit.mdbt.utils.MdBtConnector;
@@ -22,9 +20,7 @@ public class MdBt extends MdBtConnector {
 
 	private MdBtBrain brain = new MdBtBrain();
 
-	private HashMap<Pattern, MdBtPlugin> plugins = new HashMap<Pattern, MdBtPlugin>();
-
-	private ArrayList<String> pluginList = new ArrayList<String>();
+	private HashMap<String, MdBtPlugin> plugins = new HashMap<String, MdBtPlugin>();
 
 	public MdBt() {
 		try {
@@ -147,14 +143,12 @@ public class MdBt extends MdBtConnector {
 
 		plugins.clear();
 
-		pluginList.clear();
-
 		loadNewPlugins();
 
 		String ret = "";
 
-		for (Pattern s : plugins.keySet()) {
-			ret += s.pattern() + " ";
+		for (MdBtPlugin p : plugins.values()) {
+			ret += p.getTriggerRegex().pattern() + " ";
 		}
 
 		return ret;
@@ -164,21 +158,18 @@ public class MdBt extends MdBtConnector {
 		try {
 			for (String s : new File("plugins/").list(new OnlyJars("jar"))) {
 				File file = new File("plugins/" + s);
-				URL url;
-
-				url = file.toURI().toURL();
+				URL url = file.toURI().toURL();
 
 				URL[] urls = new URL[] { url };
 				ClassLoader cl = new URLClassLoader(urls);
 
-				if (!pluginList.contains("plugins."
+				if (!plugins.containsKey("plugins."
 						+ s.substring(0, s.length() - 4))) {
 
 					MdBtPlugin p = (MdBtPlugin) cl.loadClass(
 							"plugins." + s.substring(0, s.length() - 4))
 							.newInstance();
-					plugins.put(p.getTriggerRegex(), p);
-					pluginList.add("plugins." + s.substring(0, s.length() - 4));
+					plugins.put("plugins." + s.substring(0, s.length() - 4), p);
 				}
 			}
 		} catch (Exception e) {
