@@ -8,17 +8,7 @@ public abstract class MdBtPlugin {
 
 	private Pattern triggerRegex;
 	
-	private MdBt mdbt;
-	
 	public MdBtPlugin() {
-	}
-	
-	public void setMdBT(MdBt mdbt) {
-		this.mdbt = mdbt;
-	}
-	
-	public MdBt getMdBt() {
-		return mdbt;
 	}
 
 	public Pattern getTriggerRegex() {
@@ -30,7 +20,7 @@ public abstract class MdBtPlugin {
 	}
 	
 	public synchronized void sendMessage(String channel, String message) {
-		mdbt.sendMessage(channel, message);
+		MdBt.getInstance().sendMessage(channel, message);
 	}
 
 	public abstract String onMessage(String channel, String sender, String message);

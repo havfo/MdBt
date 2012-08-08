@@ -18,6 +18,8 @@ import net.fosstveit.mdbt.utils.OnlyJars;
 
 public class MdBt extends MdBtConnector {
 
+	private static final MdBt INSTANCE = new MdBt();
+
 	private MdBtBrain brain = new MdBtBrain();
 
 	private HashMap<String, MdBtPlugin> plugins = new HashMap<String, MdBtPlugin>();
@@ -26,7 +28,7 @@ public class MdBt extends MdBtConnector {
 		try {
 			loadNewPlugins();
 			trainBot();
-			setName(MdBtConstants.BOTNAME);
+			setNick(MdBtConstants.BOTNAME);
 			connect(MdBtConstants.HOST);
 
 			for (int i = 0; i < MdBtConstants.CHANNELS.length; i++) {
@@ -36,6 +38,10 @@ public class MdBt extends MdBtConnector {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	public static MdBt getInstance() {
+		return INSTANCE;
 	}
 
 	@Override
@@ -178,7 +184,7 @@ public class MdBt extends MdBtConnector {
 	}
 
 	public static void main(String[] args) {
-		new MdBt();
+		
 	}
 
 }

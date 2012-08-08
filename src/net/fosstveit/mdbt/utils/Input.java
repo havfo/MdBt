@@ -1,30 +1,23 @@
 package net.fosstveit.mdbt.utils;
 
-import java.io.*;
-import java.net.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.InterruptedIOException;
+import java.net.Socket;
 
 public class Input extends Thread {
 
-	private MdBtConnector bot = null;
-	private Socket socket = null;
-	private BufferedReader breader = null;
-	private BufferedWriter bwriter = null;
-	private boolean isConnected = true;
-	private boolean disposed = false;
-
-	public static final int MAX_LINE_LENGTH = 512;
+	private MdBtConnector bot;
+	private Socket socket;
+	private BufferedReader breader;
+	private boolean isConnected;
+	private boolean disposed;
 
 	public Input(MdBtConnector bot, Socket socket, BufferedReader breader,
 			BufferedWriter bwriter) {
 		this.bot = bot;
 		this.socket = socket;
 		this.breader = breader;
-		this.bwriter = bwriter;
-		this.setName(this.getClass() + "-Thread");
-	}
-
-	void sendRawLine(String line) {
-		Output.sendRawLine(bot, bwriter, line);
 	}
 
 	boolean isConnected() {
@@ -48,7 +41,7 @@ public class Input extends Thread {
 						running = false;
 					}
 				} catch (InterruptedIOException iioe) {
-					this.sendRawLine("PING "
+					Output.sendRawLine("PING "
 							+ (System.currentTimeMillis() / 1000));
 				}
 			}

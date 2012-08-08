@@ -1,21 +1,20 @@
 package net.fosstveit.mdbt.utils;
 
-import java.io.*;
+import java.io.BufferedWriter;
 
 public class Output extends Thread {
 
-	private MdBtConnector bot = null;
-	private Queue outQueue = null;
+	private Queue outQueue;
+	private static BufferedWriter bwriter;
 
-	public Output(MdBtConnector bot, Queue outQueue) {
-		this.bot = bot;
+	public Output(BufferedWriter bwriter, Queue outQueue) {
+		Output.bwriter = bwriter;
 		this.outQueue = outQueue;
-		this.setName(this.getClass() + "-Thread");
 	}
 
-	static void sendRawLine(MdBtConnector bot, BufferedWriter bwriter, String line) {
-		if (line.length() > bot.getMaxLineLength() - 2) {
-			line = line.substring(0, bot.getMaxLineLength() - 2);
+	static void sendRawLine(String line) {
+		if (line.length() > 510) {
+			line = line.substring(0, 510);
 		}
 		synchronized (bwriter) {
 			try {
@@ -32,11 +31,11 @@ public class Output extends Thread {
 			boolean running = true;
 			while (running) {
 				// Small delay to prevent spamming of the channel
-				Thread.sleep(bot.getMessageDelay());
+				Thread.sleep(1000);
 
 				String line = (String) outQueue.next();
 				if (line != null) {
-					bot.sendRawLine(line);
+					sendRawLine(line);
 				} else {
 					running = false;
 				}

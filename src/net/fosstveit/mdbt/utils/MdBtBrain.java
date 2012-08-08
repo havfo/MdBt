@@ -1,7 +1,12 @@
 package net.fosstveit.mdbt.utils;
 
-import java.util.*;
-import java.io.*;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Random;
 
 public class MdBtBrain implements Serializable {
 
@@ -18,10 +23,10 @@ public class MdBtBrain implements Serializable {
 	private HashMap<Quad, Quad> quads = new HashMap<Quad, Quad>();
 
 	// This maps a Quad onto a Set of Strings that may come next.
-	private HashMap<Quad, HashSet<?>> next = new HashMap<Quad, HashSet<?>>();
+	private HashMap<Quad, HashSet<String>> next = new HashMap<Quad, HashSet<String>>();
 
 	// This maps a Quad onto a Set of Strings that may come before it.
-	private HashMap<Quad, HashSet<?>> previous = new HashMap<Quad, HashSet<?>>();
+	private HashMap<Quad, HashSet<String>> previous = new HashMap<Quad, HashSet<String>>();
 
 	private Random rand = new Random();
 
@@ -87,7 +92,7 @@ public class MdBtBrain implements Serializable {
 				if (i > 0) {
 					String previousToken = (String) parts.get(i - 1);
 					if (!previous.containsKey(quad)) {
-						previous.put(quad, new HashSet<Object>(1));
+						previous.put(quad, new HashSet<String>(1));
 					}
 					HashSet<String> set = (HashSet<String>) previous.get(quad);
 					set.add(previousToken);
@@ -96,7 +101,7 @@ public class MdBtBrain implements Serializable {
 				if (i < parts.size() - 4) {
 					String nextToken = (String) parts.get(i + 4);
 					if (!next.containsKey(quad)) {
-						next.put(quad, new HashSet<Object>(1));
+						next.put(quad, new HashSet<String>(1));
 					}
 					HashSet<String> set = (HashSet<String>) next.get(quad);
 					set.add(nextToken);
