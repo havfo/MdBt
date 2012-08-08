@@ -1,7 +1,6 @@
 package net.fosstveit.mdbt.utils;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -11,23 +10,10 @@ import java.util.Random;
 public class MdBtBrain implements Serializable {
 
 	private static final long serialVersionUID = -917213639484389474L;
-	// These are valid chars for words. Anything else is treated as punctuation.
-	public static final String WORD_CHARS = "abcdefghijklmnopqrstuvwxyzæøåλ$@/\\|^_-*"
-			+ "ABCDEFGHIJKLMNOPQRSTUVWXYZÆØÅ" + "0123456789";
-	public static final String END_CHARS = ".!?";
-
-	// This maps a single word to a HashSet of all the Quads it is in.
 	private HashMap<String, HashSet<Quad>> words = new HashMap<String, HashSet<Quad>>();
-
-	// A self-referential HashMap of Quads.
 	private HashMap<Quad, Quad> quads = new HashMap<Quad, Quad>();
-
-	// This maps a Quad onto a Set of Strings that may come next.
 	private HashMap<Quad, HashSet<String>> next = new HashMap<Quad, HashSet<String>>();
-
-	// This maps a Quad onto a Set of Strings that may come before it.
 	private HashMap<Quad, HashSet<String>> previous = new HashMap<Quad, HashSet<String>>();
-
 	private Random rand = new Random();
 
 	public MdBtBrain() {
@@ -36,36 +22,13 @@ public class MdBtBrain implements Serializable {
 
 	public void add(String sentence) {
 		sentence = sentence.trim();
-		ArrayList<String> parts = new ArrayList<String>();
-		char[] chars = sentence.toCharArray();
-		int i = 0;
-		boolean punctuation = false;
-		StringBuffer buffer = new StringBuffer();
-		while (i < chars.length) {
-			char ch = chars[i];
-			if ((WORD_CHARS.indexOf(ch) >= 0) == punctuation) {
-				punctuation = !punctuation;
-				String token = buffer.toString();
-				if (token.length() > 0) {
-					parts.add(token);
-				}
-				buffer = new StringBuffer();
-				continue;
-			}
-			buffer.append(ch);
-			i++;
-		}
-		
-		String lastToken = buffer.toString();
-		if (lastToken.length() > 0) {
-			parts.add(lastToken);
-		}
+		String[] parts = sentence.split("(?!^)\\b");
 
-		if (parts.size() >= 4) {
-			for (i = 0; i < parts.size() - 3; i++) {
-				Quad quad = new Quad((String) parts.get(i),
-						(String) parts.get(i + 1), (String) parts.get(i + 2),
-						(String) parts.get(i + 3));
+		if (parts.length >= 4) {
+			for (int i = 0; i < parts.length - 3; i++) {
+				Quad quad = new Quad((String) parts[i],
+						(String) parts[i + 1], (String) parts[i + 2],
+						(String) parts[i + 3]);
 				if (quads.containsKey(quad)) {
 					quad = (Quad) quads.get(quad);
 				} else {
@@ -75,13 +38,13 @@ public class MdBtBrain implements Serializable {
 				if (i == 0) {
 					quad.setCanStart(true);
 				}
-				// else if (i == parts.size() - 4) {
-				if (i == parts.size() - 4) {
+				
+				if (i == parts.length - 4) {
 					quad.setCanEnd(true);
 				}
 
 				for (int n = 0; n < 4; n++) {
-					String token = (String) parts.get(i + n);
+					String token = (String) parts[i + n];
 					if (!words.containsKey(token)) {
 						words.put(token, new HashSet<Quad>(1));
 					}
@@ -90,7 +53,7 @@ public class MdBtBrain implements Serializable {
 				}
 
 				if (i > 0) {
-					String previousToken = (String) parts.get(i - 1);
+					String previousToken = (String) parts[i - 1];
 					if (!previous.containsKey(quad)) {
 						previous.put(quad, new HashSet<String>(1));
 					}
@@ -98,8 +61,8 @@ public class MdBtBrain implements Serializable {
 					set.add(previousToken);
 				}
 
-				if (i < parts.size() - 4) {
-					String nextToken = (String) parts.get(i + 4);
+				if (i < parts.length - 4) {
+					String nextToken = (String) parts[i + 4];
 					if (!next.containsKey(quad)) {
 						next.put(quad, new HashSet<String>(1));
 					}
