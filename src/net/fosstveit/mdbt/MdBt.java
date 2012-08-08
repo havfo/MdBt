@@ -19,14 +19,12 @@ import net.fosstveit.mdbt.utils.OnlyJars;
 public class MdBt extends MdBtConnector {
 
 	private static final MdBt INSTANCE = new MdBt();
-
 	private MdBtBrain brain = new MdBtBrain();
-
 	private HashMap<String, MdBtPlugin> plugins = new HashMap<String, MdBtPlugin>();
 
 	public MdBt() {
 		try {
-			loadNewPlugins();
+			loadPlugins();
 			trainBot();
 			setNick(MdBtConstants.BOTNAME);
 			connect(MdBtConstants.HOST);
@@ -45,8 +43,7 @@ public class MdBt extends MdBtConnector {
 	}
 
 	@Override
-	public void onMessage(String channel, String sender, String login,
-			String hostname, String message) {
+	public void onMessage(String channel, String sender, String message) {
 
 		String filter = MdBtConstants.BOTNAME + ": ";
 
@@ -60,7 +57,7 @@ public class MdBt extends MdBtConnector {
 		}
 
 		if (message.equals("reload plugins")) {
-			String ret = clearPlugins();
+			String ret = reloadPlugins();
 
 			sendMessage(channel, "Plugins loaded: " + ret);
 			return;
@@ -142,14 +139,14 @@ public class MdBt extends MdBtConnector {
 		}
 	}
 
-	private String clearPlugins() {
+	private String reloadPlugins() {
 		for (MdBtPlugin p : plugins.values()) {
 			p.cleanup();
 		}
 
 		plugins.clear();
 
-		loadNewPlugins();
+		loadPlugins();
 
 		String ret = "";
 
@@ -160,7 +157,7 @@ public class MdBt extends MdBtConnector {
 		return ret;
 	}
 
-	private synchronized void loadNewPlugins() {
+	private synchronized void loadPlugins() {
 		try {
 			for (String s : new File("plugins/").list(new OnlyJars("jar"))) {
 				File file = new File("plugins/" + s);
@@ -184,7 +181,7 @@ public class MdBt extends MdBtConnector {
 	}
 
 	public static void main(String[] args) {
-		
+
 	}
 
 }

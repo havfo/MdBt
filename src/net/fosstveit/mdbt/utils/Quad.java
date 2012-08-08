@@ -5,6 +5,9 @@ import java.io.Serializable;
 public class Quad implements Serializable {
 
 	private static final long serialVersionUID = -4417235999119569256L;
+	private String[] tokens;
+    private boolean canStart = false;
+    private boolean canEnd = false;
 	
 	public Quad(String s1, String s2, String s3, String s4) {
         tokens = new String[]{s1, s2, s3, s4};
@@ -44,9 +47,4 @@ public class Quad implements Serializable {
                other.tokens[2].equals(tokens[2]) &&
                other.tokens[3].equals(tokens[3]);
     }
-    
-    private String[] tokens;
-    private boolean canStart = false;
-    private boolean canEnd = false;
-    
 }

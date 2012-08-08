@@ -71,10 +71,7 @@ public class MdBtBrain implements Serializable {
 				}
 
 			}
-		} else {
-			// Didn't learn anything.
 		}
-
 	}
 
 	/**
@@ -92,7 +89,7 @@ public class MdBtBrain implements Serializable {
 
 		Quad[] quads;
 		if (words.containsKey(word)) {
-			quads = (Quad[]) ((HashSet<?>) words.get(word)).toArray(new Quad[0]);
+			quads = (Quad[]) ((HashSet<Quad>) words.get(word)).toArray(new Quad[0]);
 		} else {
 			quads = (Quad[]) this.quads.keySet().toArray(new Quad[0]);
 		}
@@ -109,7 +106,7 @@ public class MdBtBrain implements Serializable {
 		}
 
 		while (quad.canEnd() == false) {
-			String[] nextTokens = (String[]) ((HashSet<?>) next.get(quad))
+			String[] nextTokens = (String[]) ((HashSet<String>) next.get(quad))
 					.toArray(new String[0]);
 			String nextToken = nextTokens[rand.nextInt(nextTokens.length)];
 			quad = (Quad) this.quads.get(new Quad(quad.getToken(1), quad
@@ -119,7 +116,7 @@ public class MdBtBrain implements Serializable {
 
 		quad = middleQuad;
 		while (quad.canStart() == false) {
-			String[] previousTokens = (String[]) ((HashSet<?>) previous.get(quad))
+			String[] previousTokens = (String[]) ((HashSet<String>) previous.get(quad))
 					.toArray(new String[0]);
 			String previousToken = previousTokens[rand
 					.nextInt(previousTokens.length)];

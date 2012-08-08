@@ -98,8 +98,6 @@ public abstract class MdBtConnector {
 		}
 
 		String sourceNick = "";
-		String sourceLogin = "";
-		String sourceHostname = "";
 
 		StringTokenizer tokenizer = new StringTokenizer(line);
 		String senderInfo = tokenizer.nextToken();
@@ -111,8 +109,6 @@ public abstract class MdBtConnector {
 		if (senderInfo.startsWith(":")) {
 			if (exclamation > 0 && at > 0 && exclamation < at) {
 				sourceNick = senderInfo.substring(1, exclamation);
-				sourceLogin = senderInfo.substring(exclamation + 1, at);
-				sourceHostname = senderInfo.substring(at + 1);
 			} else {
 
 				if (tokenizer.hasMoreTokens()) {
@@ -151,7 +147,7 @@ public abstract class MdBtConnector {
 
 		if (command.equals("PRIVMSG") && "#&+!".indexOf(target.charAt(0)) >= 0) {
 			// This is a normal message to a channel.
-			this.onMessage(target, sourceNick, sourceLogin, sourceHostname,
+			this.onMessage(target, sourceNick,
 					line.substring(line.indexOf(" :") + 2));
 		}
 
@@ -161,8 +157,7 @@ public abstract class MdBtConnector {
 		Output.sendRawLine("PONG " + response);
 	}
 
-	protected void onMessage(String channel, String sender, String login,
-			String hostname, String message) {
+	protected void onMessage(String channel, String sender, String message) {
 	}
 
 	protected void onDisconnect() {
