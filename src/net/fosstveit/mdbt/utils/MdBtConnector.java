@@ -10,17 +10,12 @@ import java.util.StringTokenizer;
 
 public abstract class MdBtConnector {
 
-	// Connection stuff.
-	private Input input;
-	private Output output;
-
-	// Details about the last server that we connected to.
+	private MdBtInput mdBtInput;
+	private MdBtOutput mdBtOutput;
+	private boolean isConnected = false;
 	private String server;
 	private int port = 6667;
-
-	// Outgoing message stuff.
-	private Queue outQueue = new Queue();
-
+	private MdBtQueue outQueue = new MdBtQueue();
 	private String nick = "mdbt";
 
 	public MdBtConnector() {
@@ -38,14 +33,14 @@ public abstract class MdBtConnector {
 		BufferedWriter bwriter = new BufferedWriter(new OutputStreamWriter(
 				socket.getOutputStream()));
 
-		output = new Output(bwriter, outQueue);
-		output.start();
+		mdBtOutput = new MdBtOutput(bwriter, outQueue);
+		mdBtOutput.start();
 
 		String nick = this.nick;
-		Output.sendRawLine("NICK " + nick);
-		Output.sendRawLine("USER " + this.nick + " 8 * :" + "0.1");
+		MdBtOutput.sendRawLine("NICK " + nick);
+		MdBtOutput.sendRawLine("USER " + this.nick + " 8 * :" + "0.1");
 
-		input = new Input(this, socket, breader, bwriter);
+		mdBtInput = new MdBtInput(this, breader);
 
 		String line = null;
 		int tries = 1;
@@ -59,15 +54,15 @@ public abstract class MdBtConnector {
 				String code = line.substring(firstSpace + 1, secondSpace);
 
 				if (code.equals("004")) {
-					// We're connected to the server.
+					isConnected = true;
 					break;
 				} else if (code.equals("433")) {
 					tries++;
 					nick = nick + tries;
-					Output.sendRawLine("NICK " + nick);
+					MdBtOutput.sendRawLine("NICK " + nick);
 				} else if (code.startsWith("5") || code.startsWith("4")) {
 					socket.close();
-					input = null;
+					mdBtInput = null;
 				}
 			}
 			this.setNick(nick);
@@ -76,7 +71,7 @@ public abstract class MdBtConnector {
 
 		socket.setSoTimeout(5 * 60 * 1000);
 
-		input.start();
+		mdBtInput.start();
 	}
 
 	public final synchronized void reconnect() throws IOException, Exception {
@@ -84,7 +79,7 @@ public abstract class MdBtConnector {
 	}
 
 	public final void joinChannel(String channel) {
-		Output.sendRawLine("JOIN " + channel);
+		MdBtOutput.sendRawLine("JOIN " + channel);
 	}
 
 	public final void sendMessage(String target, String message) {
@@ -118,7 +113,6 @@ public abstract class MdBtConnector {
 					try {
 						code = Integer.parseInt(token);
 					} catch (NumberFormatException e) {
-						// Keep the existing value.
 					}
 
 					if (code != -1) {
@@ -154,13 +148,14 @@ public abstract class MdBtConnector {
 	}
 
 	protected void onServerPing(String response) {
-		Output.sendRawLine("PONG " + response);
+		MdBtOutput.sendRawLine("PONG " + response);
 	}
 
 	protected void onMessage(String channel, String sender, String message) {
 	}
 
 	protected void onDisconnect() {
+		isConnected = false;
 	}
 
 	public final void setNick(String nick) {
@@ -168,11 +163,11 @@ public abstract class MdBtConnector {
 	}
 
 	public final synchronized boolean isConnected() {
-		return input != null && input.isConnected();
+		return mdBtInput != null && isConnected;
 	}
 
 	public synchronized void dispose() {
-		output.interrupt();
-		input.dispose();
+		mdBtOutput.interrupt();
+		mdBtInput.interrupt();
 	}
 }

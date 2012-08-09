@@ -14,7 +14,7 @@ import net.fosstveit.mdbt.utils.MdBtBrain;
 import net.fosstveit.mdbt.utils.MdBtConnector;
 import net.fosstveit.mdbt.utils.MdBtConstants;
 import net.fosstveit.mdbt.utils.MdBtPlugin;
-import net.fosstveit.mdbt.utils.OnlyJars;
+import net.fosstveit.mdbt.utils.MdBtFileFilter;
 
 public class MdBt extends MdBtConnector {
 
@@ -159,7 +159,7 @@ public class MdBt extends MdBtConnector {
 
 	private synchronized void loadPlugins() {
 		try {
-			for (String s : new File("plugins/").list(new OnlyJars("jar"))) {
+			for (String s : new File("plugins/").list(new MdBtFileFilter("jar"))) {
 				File file = new File("plugins/" + s);
 				URL url = file.toURI().toURL();
 
@@ -183,5 +183,4 @@ public class MdBt extends MdBtConnector {
 	public static void main(String[] args) {
 
 	}
-
 }
