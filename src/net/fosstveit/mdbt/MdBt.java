@@ -9,6 +9,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.HashMap;
 import java.util.Random;
+import java.util.StringTokenizer;
 
 import net.fosstveit.mdbt.utils.MdBtBrain;
 import net.fosstveit.mdbt.utils.MdBtConnector;
@@ -29,8 +30,8 @@ public class MdBt extends MdBtConnector {
 			setNick(MdBtConstants.BOTNAME);
 			connect(MdBtConstants.HOST);
 
-			for (int i = 0; i < MdBtConstants.CHANNELS.length; i++) {
-				joinChannel(MdBtConstants.CHANNELS[i]);
+			for (String s : MdBtConstants.CHANNELS) {
+				joinChannel(s);
 			}
 
 		} catch (Exception e) {
@@ -71,6 +72,7 @@ public class MdBt extends MdBtConnector {
 		}
 
 		if (message.indexOf(MdBtConstants.BOTNAME) != -1) {
+			// Replace botname with "meg"
 			message = message.replaceAll(MdBtConstants.BOTNAME, "meg");
 			toMe = true;
 		}
@@ -81,8 +83,23 @@ public class MdBt extends MdBtConnector {
 
 		if (toMe) {
 			sendMessage(channel,
-					shouldITalkToYou(sender) + brain.getSentence(message));
+					shouldITalkToYou(sender) + brain.getSentence(findWordOfInterest(message)));
 		}
+	}
+
+	private String findWordOfInterest(String sentence) {
+		StringTokenizer st = new StringTokenizer(sentence,
+				" \t\n\r\f!;:'\",.?");
+		String longestWord = "";
+		while (st.hasMoreTokens()) {
+			String currentWord = st.nextToken();
+
+			if (currentWord.length() > longestWord.length()) {
+				longestWord = currentWord;
+			}
+		}
+
+		return longestWord;
 	}
 
 	private String shouldITalkToYou(String you) {
@@ -159,7 +176,8 @@ public class MdBt extends MdBtConnector {
 
 	private synchronized void loadPlugins() {
 		try {
-			for (String s : new File("plugins/").list(new MdBtFileFilter("jar"))) {
+			for (String s : new File("plugins/")
+					.list(new MdBtFileFilter("jar"))) {
 				File file = new File("plugins/" + s);
 				URL url = file.toURI().toURL();
 
