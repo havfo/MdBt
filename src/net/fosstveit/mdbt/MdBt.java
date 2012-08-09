@@ -14,8 +14,8 @@ import java.util.StringTokenizer;
 import net.fosstveit.mdbt.utils.MdBtBrain;
 import net.fosstveit.mdbt.utils.MdBtConnector;
 import net.fosstveit.mdbt.utils.MdBtConstants;
-import net.fosstveit.mdbt.utils.MdBtPlugin;
 import net.fosstveit.mdbt.utils.MdBtFileFilter;
+import net.fosstveit.mdbt.utils.MdBtPlugin;
 
 public class MdBt extends MdBtConnector {
 
@@ -136,16 +136,12 @@ public class MdBt extends MdBtConnector {
 
 		try {
 			fir = new FileReader(file);
-
-			// Here BufferedInputStream is added for fast reading.
 			bis = new BufferedReader(fir);
-
-			// bis.available() returns 0 if the file does not have more lines.
+			
 			while ((line = bis.readLine()) != null) {
-				brain.add(line);
+				 brain.add(line);
 			}
 
-			// dispose all the resources after using them.
 			fir.close();
 			bis.close();
 
@@ -179,9 +175,7 @@ public class MdBt extends MdBtConnector {
 			for (String s : new File("plugins/")
 					.list(new MdBtFileFilter("jar"))) {
 				File file = new File("plugins/" + s);
-				URL url = file.toURI().toURL();
-
-				URL[] urls = new URL[] { url };
+				URL[] urls = new URL[] { file.toURI().toURL() };
 				ClassLoader cl = new URLClassLoader(urls);
 
 				if (!plugins.containsKey("plugins."

@@ -23,21 +23,16 @@ public class MdBtBrain implements Serializable {
 
 		if (parts.length >= 4) {
 			for (int i = 0; i < parts.length - 3; i++) {
-				MdBtQuad mdBtQuad = new MdBtQuad((String) parts[i],
-						(String) parts[i + 1], (String) parts[i + 2],
-						(String) parts[i + 3]);
+				MdBtQuad mdBtQuad = new MdBtQuad(parts[i], parts[i + 1],
+						parts[i + 2], parts[i + 3]);
+
+				mdBtQuad.setCanStart(i == 0);
+				mdBtQuad.setCanEnd(i == parts.length - 4);
+
 				if (mdBtQuads.contains(mdBtQuad)) {
 					mdBtQuad = mdBtQuads.get(mdBtQuads.indexOf(mdBtQuad));
 				} else {
 					mdBtQuads.add(mdBtQuad);
-				}
-
-				if (i == 0) {
-					mdBtQuad.setCanStart(true);
-				}
-
-				if (i == parts.length - 4) {
-					mdBtQuad.setCanEnd(true);
 				}
 
 				for (int n = 0; n < 4; n++) {
