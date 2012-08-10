@@ -13,6 +13,7 @@ public class MdBtBrain implements Serializable {
 	private HashMap<MdBtQuad, ArrayList<String>> next = new HashMap<MdBtQuad, ArrayList<String>>();
 	private HashMap<MdBtQuad, ArrayList<String>> previous = new HashMap<MdBtQuad, ArrayList<String>>();
 	private Random rand = new Random();
+	private DataBase db = new DataBase();
 
 	public MdBtBrain() {
 	}
